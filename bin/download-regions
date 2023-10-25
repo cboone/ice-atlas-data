@@ -9,7 +9,7 @@ declare -r dir="$(pwd)"
 
 declare -a regions=(
   vermont
-  new-hampshire
+  new_hampshire
 )
 
 for region in "${regions[@]}"; do
