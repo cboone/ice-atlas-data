@@ -3,19 +3,13 @@
 set -e
 
 declare -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-echo "Started at $start_time"
+echo "[download] Started at $start_time"
 
 declare -r dir="$(pwd)"
 
-declare -a regions=(
-  vermont
-  new_hampshire
-)
+for region in "$@"; do
+  echo "[download] Downloading $region"
 
-for region in "${regions[@]}"; do
-  echo "Downloading $region"
-
-  set -x
   docker run \
     --rm \
     -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
