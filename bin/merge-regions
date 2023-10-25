@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+declare -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+echo "Started at $start_time"
+
+declare -r dir="$(pwd)"
+
+declare -a regions=(
+  vermont
+  new_hampshire
+)
+
+echo "Merging regions: ${regions[*]}"
+
+osmium merge --verbose -o "$dir/data/merged.osm.pbf" $(printf "$dir/data/sources/%s.osm.pbf " "${regions[@]}")
