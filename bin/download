@@ -16,6 +16,7 @@ for region in "$@"; do
     -v "$dir/data":/data \
     ghcr.io/onthegomap/planetiler:latest \
     --area="$region" \
+    --bounds="-77.4448803163,42.0041639122,-66.6042989998,47.5416852124" \
     --download \
     --only-download \
     --download-threads=10 \

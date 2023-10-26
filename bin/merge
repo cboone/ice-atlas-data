@@ -3,15 +3,12 @@
 set -e
 
 declare -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-echo "Started at $start_time"
+echo "[merge] Started at $start_time"
 
 declare -r dir="$(pwd)"
+declare -r merge_into="$1"
+shift 1
 
-declare -a regions=(
-  vermont
-  new_hampshire
-)
+echo "[merge] Merging regions \"$*\" into \"$merge_into\""
 
-echo "Merging regions: ${regions[*]}"
-
-osmium merge --verbose -o "$dir/data/merged.osm.pbf" $(printf "$dir/data/sources/%s.osm.pbf " "${regions[@]}")
+osmium merge --verbose --overwrite -o "$dir/data/$merge_into.osm.pbf" $(printf "$dir/data/sources/%s.osm.pbf " "$@")

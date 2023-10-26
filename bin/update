@@ -3,17 +3,12 @@
 set -e
 
 declare -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-echo "Started at $start_time"
+echo "[update] Started at $start_time"
 
 declare -r dir="$(pwd)"
 
-declare -a regions=(
-  vermont
-  new_hampshire
-)
-
-for region in "${regions[@]}"; do
-  echo "Updating $region"
+for region in "$@"; do
+  echo "[update] Updating $region"
 
   "$dir/bin/pyosmium-up-to-date" -vvvv --size 10000 "$dir/data/sources/$region.osm.pbf"
 done
