@@ -1,0 +1,7 @@
+{
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "mapshaper": "^0.6.44"
+  }
+}

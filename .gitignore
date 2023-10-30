@@ -1,5 +1,6 @@
-/data/sources/*
-/data/tmp/*
+/node_modules/*
+/planetiler/sources/*
+/planetiler/tmp/*
 /**/*.osm.pbf
 /**/*.pmtiles
 /**/*.tsv.gz

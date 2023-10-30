@@ -26,16 +26,17 @@ function main {
     esac
   done
 
-  echo "[convert] Converting $file.osm.pbf into $file.pmtiles"
+  echo "[convert] Converting planetiler/$file.osm.pbf into tiles/$file.pmtiles"
 
   set -x
   docker run \
     --rm \
     -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
-    -v "$dir/data":/data \
+    -v "$dir/planetiler":/data \
+    -v "$dir/tiles":/output \
     ghcr.io/onthegomap/planetiler:latest \
     --osm_path="/data/$file.osm.pbf" \
-    --output="/data/$file.pmtiles" \
+    --output="/output/$file.pmtiles" \
     --bounds="$bounding_box" \
     --nodemap-type=sparsearray \
     --storage=ram \

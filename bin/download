@@ -17,13 +17,13 @@ function main {
       remove_first=true
       shift
       ;;
+    others)
+      regions=(massachusetts new_york ontario quebec new_brunswick maine)
+      shift
+      ;;
     vt-nh)
       regions=(vermont new_hampshire)
       bounding_box="-73.4377402067,42.6972286785,-70.5613593757,45.3057790187" # vt-nh
-      shift
-      ;;
-    others)
-      regions=(massachusetts new_york ontario quebec new_brunswick maine)
       shift
       ;;
     *)
@@ -37,7 +37,7 @@ function main {
     echo "[download] Downloading $region"
 
     if [[ $remove_first ]]; then
-      local file="$dir/data/sources/$region.osm.pbf"
+      local file="$dir/planetiler/sources/$region.osm.pbf"
       echo "[download] Removing old $file"
       rm -rf "$file"
     fi
@@ -45,7 +45,7 @@ function main {
     docker run \
       --rm \
       -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
-      -v "$dir/data":/data \
+      -v "$dir/planetiler":/data \
       ghcr.io/onthegomap/planetiler:latest \
       --area="$region" \
       --bounds="$bounding_box" \

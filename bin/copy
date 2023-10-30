@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+function main {
+  set -e
+
+  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+  echo "[copy] Started at $start_time"
+
+  local -r dir="$(pwd)"
+
+  local -A regions=(["vt-nh"]=base ["ma-ny-on-qc-nb-me"]=background)
+
+  for region in "${!regions[@]}"; do
+    echo "[copy] Copying $region.pmtiles to catamount-hardware/.../${regions[$region]}.pmtiles"
+    cp "$dir/tiles/$region.pmtiles" "../catamount-hardware/static/maps/${regions[$region]}.pmtiles"
+  done
+}
+
+main "$@"
