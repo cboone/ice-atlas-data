@@ -12,7 +12,7 @@ function main {
 
   echo "[merge] Merging regions \"$*\" into \"$merge_into\""
 
-  osmium merge --verbose --overwrite -o "$dir/planetiler/$merge_into.osm.pbf" $(printf "$dir/data/sources/%s.osm.pbf " "$@")
+  osmium merge --verbose --overwrite -o "$dir/pbf/$merge_into.osm.pbf" $(printf "$dir/data/sources/%s.osm.pbf " "$@")
 }
 
 main "$@"

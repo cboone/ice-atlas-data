@@ -26,7 +26,7 @@ function main {
     esac
   done
 
-  echo "[convert] Converting planetiler/$file.osm.pbf into tiles/$file.pmtiles"
+  echo "[convert] Converting pbf/$file.osm.pbf into tiles/$file.pmtiles"
 
   set -x
   docker run \

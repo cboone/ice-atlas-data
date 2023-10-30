@@ -37,7 +37,7 @@ function main {
     echo "[download] Downloading $region"
 
     if [[ $remove_first ]]; then
-      local file="$dir/planetiler/sources/$region.osm.pbf"
+      local file="$dir/pbf/sources/$region.osm.pbf"
       echo "[download] Removing old $file"
       rm -rf "$file"
     fi

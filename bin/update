@@ -14,7 +14,7 @@ function main {
   for region in "${regions[@]}"; do
     echo "[update] Updating $region"
 
-    "$dir/bin/pyosmium-up-to-date" -vvvv --size 10000 "$dir/planetiler/sources/$region.osm.pbf"
+    "$dir/bin/pyosmium-up-to-date" -vvvv --size 10000 "$dir/pbf/sources/$region.osm.pbf"
   done
 }
 
