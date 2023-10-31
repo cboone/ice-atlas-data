@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+function main {
+  set -e
+
+  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+  echo "[pipeline] Started at $start_time"
+
+  local download_regions
+  while (($# > 0)); do
+    case "$1" in
+    --download)
+      download_regions="download regions"
+      shift
+      ;;
+    *)
+      echo "[pipeline] Unexpected option \"$1\" ignored"
+      shift
+      ;;
+    esac
+  done
+
+  echo
+  if [ "$download_regions" ]; then
+    echo "[pipeline] Downloading foreground regions (Vermont, New Hampshire)"
+    bin/download-regions --force vt-nh
+  else
+    echo "[pipeline] Skipping initial downloads"
+  fi
+
+  echo
+  echo "[pipeline] Extracting borders from foreground regions (Vermont, New Hampshire)"
+  bin/extract-border vermont new_hampshire
+
+  echo
+  echo "[pipeline] Merging borders from foreground regions (Vermont, New Hampshire)"
+  bin/merge-borders vt vermont Vermont nh new_hampshire "New Hampshire"
+
+  echo
+  echo "[pipeline] Extracting bounding box from merged foreground region (vt-nh)"
+  bin/extract-bounds vt-nh
+}
+
+main "$@"

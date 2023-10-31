@@ -13,7 +13,6 @@ function main {
     echo "[extract-border] Extracting admin level 4 borders from \"$source\" into \"$destination\""
     osm_extract_polygon --geojson --file "$source" --path "$destination" --max 4 --min 4 --overwrite
   done
-  # ogr2ogr -f GeoJSON -dialect sqlite -sql "select ST_Envelope(geometry) AS geometry from Vermont" ./vt-bounds.geojson ./geojson/vermont/Vermont.geojson
 }
 
 main "$@"
