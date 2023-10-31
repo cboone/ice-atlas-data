@@ -6,15 +6,13 @@ function main {
   local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
   echo "[update] Started at $start_time"
 
-  local -r dir="$(pwd)"
-
   local -r all_regions=(vermont new_hampshire massachusetts new_york ontario quebec new_brunswick maine)
   local -r regions=("${@:-${all_regions[@]}}")
 
   for region in "${regions[@]}"; do
     echo "[update] Updating $region"
 
-    "$dir/bin/pyosmium-up-to-date" -vvvv --size 10000 "$dir/pbf/sources/$region.osm.pbf"
+    "bin/pyosmium-up-to-date" -vvvv --size 10000 "pbf/sources/$region.osm.pbf"
   done
 }
 

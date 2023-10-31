@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+function main {
+  set -e
+
+  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+  echo "[copy] Started at $start_time"
+
+  local -a input_files=()
+  local -a output_files=()
+  while (($# > 0)); do
+    input_files+=("tiles/$1.pmtiles")
+    output_files+=("../catamount-hardware/static/maps/$2.pmtiles")
+    shift 2
+  done
+
+  for index in "${!input_files[@]}"; do
+    echo "[copy] Copying ${input_files[$index]} to ${output_files[$index]}"
+    cp "${input_files[$index]}" "${output_files[$index]}"
+  done
+}
+
+main "$@"
