@@ -1,6 +1,7 @@
 /node_modules/*
 /pbf/sources/*
 /pbf/tmp/*
+/**/*.osm
 /**/*.osm.pbf
 /**/*.pmtiles
 /**/*.tsv.gz
