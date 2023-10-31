@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+function main {
+  set -e
+
+  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+  echo "[merge-borders] Started at $start_time"
+
+  local -a regions=()
+  local -a output_regions=()
+  while (($# > 0)); do
+    output_regions+=("$1")
+    regions+=("borders/$2/$3.geojson")
+    shift 3
+  done
+  local -r output="borders/$(
+    IFS=-
+    echo "${output_regions[*]}"
+  ).geojson"
+
+  echo "[merge-borders] Merging ${regions[@]} into $output"
+  yarn mapshaper -i "${regions[@]}" combine-files -merge-layers flatten -dissolve -dissolve2 -filter-slivers remove-empty -rename-layers vt-nh -clean -o "$output" bbox prettify
+}
+
+main "$@"
