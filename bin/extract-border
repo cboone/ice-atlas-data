@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+function main {
+  set -e
+
+  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+  echo "[extract-border] Started at $start_time"
+
+  local -r region="$1"
+  local -r source="pbf/sources/$region.osm.pbf"
+  local -r destination="borders/$region"
+
+  echo "[extract-border] Extracting admin level 4 borders from \"$source\" into \"$destination\""
+  osm_extract_polygon --geojson --file "$source" --path "$destination" --max 4 --min 4 --overwrite
+  echo "[extract-border] Deleting admin level 4 borders from \"$source\" into \"$destination\""
+  find "$destination" -type f ! -iname "$region.*" -delete
+  echo "[extract-border] Borders extracted: $(printf "%s " $(find borders/vermont -type f -exec basename {} \;))"
+
+  # ogr2ogr -f GeoJSON -dialect sqlite -sql "select ST_Envelope(geometry) AS geometry from Vermont" ./vt-bounds.geojson ./geojson/vermont/Vermont.geojson
+}
+
+main "$@"
