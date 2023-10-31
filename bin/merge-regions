@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+function main {
+  set -e
+
+  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+  echo "[merge-regions] Started at $start_time"
+
+  local -r output_file="pbf/$1.osm.pbf"
+  shift 1
+  local -a input_files=()
+  while (($# > 0)); do
+    input_files+=("pbf/sources/$1.osm.pbf")
+    shift
+  done
+
+  echo "[merge-regions] Merging ${input_files[*]} into $output_file"
+
+  osmium merge \
+    "${input_files[@]}" \
+    --verbose \
+    --progress \
+    --overwrite \
+    --output "$output_file"
+}
+
+main "$@"

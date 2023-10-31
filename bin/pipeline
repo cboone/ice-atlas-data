@@ -39,6 +39,14 @@ function main {
   echo
   echo "[pipeline] Extracting bounding box from merged foreground region (vt-nh)"
   bin/extract-bounds vt-nh
+
+  echo
+  echo "[pipeline] Merging foreground regions (Vermont, New Hampshire)"
+  bin/merge-regions vt-nh vermont new_hampshire
+
+  echo
+  echo "[pipeline] Extracting foreground regions (Vermont, New Hampshire) using merged borders (vt-nh)"
+  bin/extract-region vt-nh
 }
 
 main "$@"
