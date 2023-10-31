@@ -11,7 +11,7 @@ function main {
     local destination="bounding-boxes/$region.csv"
 
     echo "[extract-bounds] Extracting bounding box from \"$source\" into \"$destination\""
-    jq ".bbox | @csv" <"$source" >"$destination"
+    jq --raw-output ".bbox | @csv" <"$source" >"$destination"
   done
 }
 

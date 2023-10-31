@@ -45,8 +45,16 @@ function main {
   bin/merge-regions vt-nh vermont new_hampshire
 
   echo
-  echo "[pipeline] Extracting foreground regions (Vermont, New Hampshire) using merged borders (vt-nh)"
+  echo "[pipeline] Extracting foreground region using merged borders (vt-nh)"
   bin/extract-region vt-nh
+
+  echo
+  echo "[pipeline] Converting foreground region into pmtiles archive (vt-nh)"
+  bin/convert-region-to-pmtiles vt-nh
+
+  echo
+  echo "[pipeline] Copying foreground region to development repo (vt-nh)"
+  cp "tiles/vt-nh.pmtiles" "../catamount-hardware/static/maps/foreground.pmtiles"
 }
 
 main "$@"

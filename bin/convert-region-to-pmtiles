@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+function main {
+  set -e
+
+  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
+  echo "[convert-region-to-pmtiles] Started at $start_time"
+
+  local -r dir="$(pwd)"
+
+  local -r region="$1"
+  local bounding_box="$(cat "bounding-boxes/$region.csv")"
+
+  echo "[convert-region-to-pmtiles] Converting pbf/$region.osm.pbf into tiles/$region.pmtiles using bounding box $bounding_box"
+
+  set -x
+  docker run \
+    --rm \
+    -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
+    -v "$dir/pbf":/data \
+    -v "$dir/tiles":/output \
+    ghcr.io/onthegomap/planetiler:latest \
+    --osm_path="/data/$region.osm.pbf" \
+    --output="/output/$region.pmtiles" \
+    --bounds=$bounding_box \
+    --nodemap-type=sparsearray \
+    --storage=ram \
+    --transportation_name_size_for_shield \
+    --transportation_name_limit_merge \
+    --boundary-osm-only \
+    --building_merge_z13=false \
+    --max-point-buffer=4 \
+    --maxzoom=15 \
+    --render_maxzoom=15 \
+    --force
+}
+
+main "$@"
