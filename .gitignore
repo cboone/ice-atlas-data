@@ -1,3 +1,5 @@
+/borders/*
+/bounding-boxes/*
 /node_modules/*
 /pbf/sources/*
 /pbf/tmp/*
