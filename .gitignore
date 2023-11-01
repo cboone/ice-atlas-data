@@ -3,6 +3,7 @@
 /node_modules/*
 /pbf/sources/*
 /pbf/tmp/*
+/**/*.mbtiles
 /**/*.osm
 /**/*.osm.pbf
 /**/*.pmtiles
