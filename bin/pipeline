@@ -124,19 +124,23 @@ function main {
     connecticut massachusetts new_brunswick new_york ontario quebec rhode_island
 
   echo
-  echo "[$command_name] Converting foreground region into pmtiles archive (nh-vt)"
+  echo "[$command_name] Converting foreground region into PMTiles archive (nh-vt)"
   bin/convert-region-to-pmtiles nh-vt
 
   echo
-  echo "[$command_name] Converting background region into pmtiles archive (ct-ma-nb-ny-on-qc-ri)"
+  echo "[$command_name] Converting background region into PMTiles archive (ct-ma-nb-ny-on-qc-ri)"
   bin/convert-region-to-pmtiles \
     --bounds me-nh-nybuffered-vt \
     ct-ma-nb-ny-on-qc-ri
 
   echo
-  echo "[$command_name] Copying foreground and background regions to development repo (nh-vt)"
+  echo "[$command_name] Generating scrim PMTiles archive (me-nh-nybuffered-vt-minus-nh-vt)"
+  bin/generate-scrim me-nh-nybuffered-vt nh-vt
+
+  echo
+  echo "[$command_name] Copying files to development repo (nh-vt)"
   bin/copy-to-development ct-ma-nb-ny-on-qc-ri background
-  # bin/copy-to-development scrim scrim
+  bin/copy-to-development me-nh-nybuffered-vt-minus-nh-vt scrim
   bin/copy-to-development nh-vt foreground
 }
 

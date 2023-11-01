@@ -27,7 +27,8 @@ function main {
     --overwrite \
     --polygon "$bounds_file" \
     --set-bounds \
-    --strategy simple \
+    --strategy complete_ways \
+    --option relations=false \
     --output "$output_file"
 }
 
