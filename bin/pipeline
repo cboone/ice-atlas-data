@@ -124,29 +124,20 @@ function main {
     connecticut massachusetts new_brunswick new_york ontario quebec rhode_island
 
   echo
-  echo "[$command_name] Extracting foreground region using merged borders (nh-vt)"
-  bin/extract-region nh-vt
-
-  echo
-  echo "[$command_name] Extracting background region using buffered bounding box (nh-vt, me-nh-nybuffered-vt)"
-  bin/extract-region \
-    --bounds bounding-boxes/me-nh-nybuffered-vt \
-    ct-ma-nb-ny-on-qc-ri
-
-  echo
   echo "[$command_name] Converting foreground region into pmtiles archive (nh-vt)"
-  bin/convert-region-to-pmtiles --bounds nh-vt nh-vt-extracted
+  bin/convert-region-to-pmtiles nh-vt
 
   echo
   echo "[$command_name] Converting background region into pmtiles archive (ct-ma-nb-ny-on-qc-ri)"
   bin/convert-region-to-pmtiles \
     --bounds me-nh-nybuffered-vt \
-    ct-ma-nb-ny-on-qc-ri-extracted
+    ct-ma-nb-ny-on-qc-ri
 
   echo
   echo "[$command_name] Copying foreground and background regions to development repo (nh-vt)"
-  bin/copy-to-development nh-vt-extracted foreground
-  bin/copy-to-development ct-ma-nb-ny-on-qc-ri-extracted background
+  bin/copy-to-development ct-ma-nb-ny-on-qc-ri background
+  # bin/copy-to-development scrim scrim
+  bin/copy-to-development nh-vt foreground
 }
 
 echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
