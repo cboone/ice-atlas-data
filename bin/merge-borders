@@ -1,33 +1,37 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
 function main {
-  set -e
-
-  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-  echo "[merge-borders] Started at $start_time"
-
-  local -a regions=()
+  local -a input_files=()
   local -a output_regions=()
+
   while (($# > 0)); do
     output_regions+=("$1")
-    regions+=("borders/$2/$3.geojson")
-    shift 3
+    input_files+=("borders/$2.geojson")
+    shift 2
   done
-  local -r output="borders/$(
+
+  local -r output_file="borders/$(
     IFS=-
     echo "${output_regions[*]}"
   ).geojson"
 
-  echo "[merge-borders] Merging ${regions[*]} into $output"
+  echo "[$command_name] Merging ${input_files[*]} into $output_file"
   yarn mapshaper \
-    -i "${regions[@]}" combine-files \
-    -merge-layers flatten \
+    -i "${input_files[@]}" combine-files \
+    -merge-layers flatten force \
     -dissolve \
     -dissolve2 sliver-control=0 \
     -filter-slivers sliver-control=0 remove-empty \
     -rename-layers vt-nh \
     -clean \
-    -o "$output" bbox geojson-type=FeatureCollection prettify
+    -o "$output_file" bbox geojson-type=FeatureCollection prettify
 }
 
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
 main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
-function main {
-  set -e
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
 
-  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-  echo "[pipeline] Started at $start_time"
+set -e
+
+function main {
+  local bounds_arg="--no-bounds"
 
   local download_region
   local update_regions="update regions"
+
   while (($# > 0)); do
     case "$1" in
     --download)
@@ -19,8 +22,12 @@ function main {
       update_regions=
       shift
       ;;
+    --use-existing-bounds)
+      bounds_arg="--use-existing-bounds"
+      shift
+      ;;
     *)
-      echo "[pipeline] Unexpected option \"$1\" ignored"
+      echo "[$command_name] Unexpected option \"$1\" ignored"
       shift
       ;;
     esac
@@ -28,47 +35,121 @@ function main {
 
   echo
   if [ "$download_region" ]; then
-    echo "[pipeline] Downloading foreground regions (Vermont, New Hampshire)"
-    bin/download-regions --force vermont new_hampshire
+    echo "[$command_name] Downloading foreground regions (New Hampshire, Vermont)"
+    bin/download-region \
+      --force \
+      "$bounds_arg" \
+      new_hampshire vermont
+
+    echo "[$command_name] Downloading secondary regions (Maine, New York)"
+    bin/download-region \
+      --force \
+      "$bounds_arg" \
+      maine new_york
   else
-    echo "[pipeline] Skipping initial downloads"
+    echo "[$command_name] Skipping downloads of foreground and secondary regions"
   fi
 
   echo
   if [ "$update_regions" ]; then
-    echo "[pipeline] Updating foreground regions (Vermont, New Hampshire)"
-    bin/update-region vermont new_hampshire
+    echo "[$command_name] Updating foreground regions (New Hampshire, Vermont)"
+    bin/update-region new_hampshire vermont
+
+    echo "[$command_name] Updating secondary regions (Maine, New York)"
+    bin/update-region maine new_york
   else
-    echo "[pipeline] Skipping initial updates"
+    echo "[$command_name] Skipping updates of foreground and secondary regions"
   fi
 
   echo
-  echo "[pipeline] Extracting borders from foreground regions (Vermont, New Hampshire)"
-  bin/extract-border vermont new_hampshire
+  echo "[$command_name] Extracting borders from each region (Vermont, New Hampshire, Maine, New York)"
+  bin/extract-border \
+    maine Maine \
+    new_hampshire "New Hampshire" \
+    new_york "New York" \
+    vermont Vermont
 
   echo
-  echo "[pipeline] Merging borders from foreground regions (Vermont, New Hampshire)"
-  bin/merge-borders vt vermont Vermont nh new_hampshire "New Hampshire"
+  echo "[$command_name] Calculating bounding boxes of each region (Maine, New Hampshire, New York, Vermont)"
+  bin/extract-bounds maine new_hampshire new_york vermont
+  bin/calculate-bounds maine new_hampshire new_york vermont
 
   echo
-  echo "[pipeline] Extracting bounding box from merged foreground region (vt-nh)"
-  bin/extract-bounds vt-nh
+  echo "[$command_name] Merging borders of foreground regions (New Hampshire, Vermont)"
+  bin/merge-borders \
+    nh new_hampshire \
+    vt vermont
 
   echo
-  echo "[pipeline] Merging foreground regions (Vermont, New Hampshire)"
-  bin/merge-regions vt-nh vermont new_hampshire
+  echo "[$command_name] Merging borders of secondary region (Maine, New Hampshire, New York, Vermont)"
+  bin/calculate-buffered-border --buffer -0.75 new_york
+  bin/merge-borders \
+    me maine \
+    nh new_hampshire \
+    nybuffered new_york-buffered \
+    vt vermont
 
   echo
-  echo "[pipeline] Extracting foreground region using merged borders (vt-nh)"
-  bin/extract-region vt-nh
+  echo "[$command_name] Extracting bounding box of foreground and secondary regions (nh-vt, me-nh-nybuffered-vt)"
+  bin/extract-bounds nh-vt me-nh-nybuffered-vt
+  bin/calculate-bounds nh-vt me-nh-nybuffered-vt
 
   echo
-  echo "[pipeline] Converting foreground region into pmtiles archive (vt-nh)"
-  bin/convert-region-to-pmtiles vt-nh
+  if [ "$download_region" ]; then
+    echo "[$command_name] Downloading background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island)"
+    bin/download-region \
+      --force \
+      --bounds "$(cat bounding-boxes/me-nh-nybuffered-vt.csv)" \
+      connecticut massachusetts new_brunswick ontario quebec rhode_island
+  else
+    echo "[$command_name] Skipping downloads of background regions"
+  fi
 
   echo
-  echo "[pipeline] Copying foreground region to development repo (vt-nh)"
-  bin/copy-to-development vt-nh foreground
+  if [ "$update_regions" ]; then
+    echo "[$command_name] Updating background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island))"
+    bin/update-region connecticut massachusetts new_brunswick ontario quebec rhode_island
+  else
+    echo "[$command_name] Skipping updates of background regions"
+  fi
+
+  echo
+  echo "[$command_name] Merging foreground regions (New Hampshire, Vermont)"
+  bin/merge-regions nh-vt new_hampshire vermont
+
+  echo
+  echo "[$command_name] Merging background regions (Connecticut, Massachusetts, New Brunswick, New York, Ontario, Québec, Rhode Island)"
+  bin/merge-regions \
+    ct-ma-nb-ny-on-qc-ri \
+    connecticut massachusetts new_brunswick new_york ontario quebec rhode_island
+
+  echo
+  echo "[$command_name] Extracting foreground region using merged borders (nh-vt)"
+  bin/extract-region nh-vt
+
+  echo
+  echo "[$command_name] Extracting background region using buffered bounding box (nh-vt, me-nh-nybuffered-vt)"
+  bin/extract-region \
+    --bounds bounding-boxes/me-nh-nybuffered-vt \
+    ct-ma-nb-ny-on-qc-ri
+
+  echo
+  echo "[$command_name] Converting foreground region into pmtiles archive (nh-vt)"
+  bin/convert-region-to-pmtiles --bounds nh-vt nh-vt-extracted
+
+  echo
+  echo "[$command_name] Converting background region into pmtiles archive (ct-ma-nb-ny-on-qc-ri)"
+  bin/convert-region-to-pmtiles \
+    --bounds me-nh-nybuffered-vt \
+    ct-ma-nb-ny-on-qc-ri-extracted
+
+  echo
+  echo "[$command_name] Copying foreground and background regions to development repo (nh-vt)"
+  bin/copy-to-development nh-vt-extracted foreground
+  bin/copy-to-development ct-ma-nb-ny-on-qc-ri-extracted background
 }
 
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
 main "$@"
+echo
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

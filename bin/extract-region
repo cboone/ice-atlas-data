@@ -1,38 +1,36 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
 function main {
-  set -e
+  local bounds_file
+  local input_file
+  local output_file
 
-  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-  echo "[extract-region] Started at $start_time"
+  if [[ "$1" == "--bounds" ]]; then
+    bounds_file="$2.geojson"
+    shift 2
+  else
+    bounds_file="borders/$1.geojson"
+  fi
+  input_file="pbf/$1.osm.pbf"
+  output_file="pbf/$1-extracted.osm.pbf"
 
-  local -a input_files=()
-  local -a bounds_files=()
-  local -a output_files=()
-  while (($# > 0)); do
-    input_files+=("pbf/$1.osm.pbf")
-    bounds_files+=("borders/$1.geojson")
-    # input_files+=("pbf/sources/$1.osm.pbf")
-    # bounds_files+=("borders/$1/$2.geojson")
-    output_files+=("pbf/$1-extracted.osm.pbf")
-    shift
-    # shift 2
-  done
+  echo "[$command_name] Extracting $input_file into $output_file using $bounds_file as the bounding polygon"
 
-  for index in "${!input_files[@]}"; do
-    local input_file="${input_files[$index]}"
-    local bounds_file="${bounds_files[$index]}"
-    local output_file="${output_files[$index]}"
-    echo "[extract-region] Extracting $input_file into $output_file using $bounds_file as the bounding polygon"
-
-    osmium extract \
-      "$input_file" \
-      --overwrite \
-      --polygon "$bounds_file" \
-      --set-bounds \
-      --strategy smart \
-      --output "$output_file"
-  done
+  set -x
+  osmium extract \
+    "$input_file" \
+    --overwrite \
+    --polygon "$bounds_file" \
+    --set-bounds \
+    --strategy smart \
+    --output "$output_file"
 }
 
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
 main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

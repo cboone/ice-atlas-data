@@ -1,18 +1,40 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
 function main {
-  set -e
+  local -a regions=()
+  local -a border_names=()
 
-  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-  echo "[extract-border] Started at $start_time"
+  while (($# > 0)); do
+    regions+=("$1")
+    border_names+=("$2")
+    shift 2
+  done
 
-  for region in "$@"; do
+  for index in "${!regions[@]}"; do
+    local border_name="${border_names[$index]}"
+    local region="${regions[$index]}"
     local source="pbf/sources/$region.osm.pbf"
     local destination="borders/$region"
 
-    echo "[extract-border] Extracting admin level 4 borders from \"$source\" into \"$destination\""
-    osm_extract_polygon --geojson --file "$source" --path "$destination" --max 4 --min 4 --overwrite
+    echo "[$command_name] Extracting admin level 4 borders from \"$source\" into \"$destination\""
+    osm_extract_polygon \
+      --geojson \
+      --file "$source" \
+      --path "$destination" \
+      --max 4 \
+      --min 4 \
+      --overwrite
+
+    echo "[$command_name] Copying $destination/$border_name.geojson to $destination.geojson"
+    cp "$destination/$border_name.geojson" "$destination.geojson"
   done
 }
 
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
 main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

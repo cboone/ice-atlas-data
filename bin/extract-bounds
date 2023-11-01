@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
 function main {
-  set -e
-
-  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-  echo "[extract-bounds] Started at $start_time"
-
   for region in "$@"; do
     local source="borders/$region.geojson"
     local destination="bounding-boxes/$region.csv"
 
-    echo "[extract-bounds] Extracting bounding box from \"$source\" into \"$destination\""
+    if ! jq --exit-status ".bbox" <"$source" >/dev/null; then
+      echo "[$command_name] Calculating bounding box of and adding it to $source"
+      yarn mapshaper \
+        -i "$source" \
+        -o "$source" bbox force prettify
+    fi
+
+    echo "[$command_name] Extracting bounding box of $source and storing it in $destination"
     jq --raw-output ".bbox | @csv" <"$source" >"$destination"
   done
 }
 
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
 main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  for region in "$@"; do
+    local source="borders/$region.geojson"
+    local destination="bounding-boxes/$region.geojson"
+
+    echo "[$command_name] Calculating bounding box of $source and storing in $destination"
+    ogr2ogr \
+      -f GeoJSON \
+      -dialect sqlite \
+      -sql "select ST_Envelope(geometry) as geometry FROM '$region'" \
+      -nln "$region" \
+      "$destination" \
+      "$source"
+  done
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"
