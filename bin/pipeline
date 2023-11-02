@@ -67,7 +67,7 @@ function main {
   fi
 
   echo
-  echo "[$command_name] Extracting borders from each region (Vermont, New Hampshire, Maine, New York)"
+  echo "[$command_name] Extracting borders from foreground and secondary regions (Vermont, New Hampshire, Maine, New York)"
   bin/extract-border \
     maine Maine \
     new_hampshire "New Hampshire" \
@@ -75,7 +75,7 @@ function main {
     vermont Vermont
 
   echo
-  echo "[$command_name] Calculating bounding boxes of each region (Maine, New Hampshire, New York, Vermont)"
+  echo "[$command_name] Calculating bounding boxes of foreground and secondary region (Maine, New Hampshire, New York, Vermont)"
   bin/extract-bounds maine new_hampshire new_york vermont
   bin/calculate-bounds maine new_hampshire new_york vermont
 
@@ -86,7 +86,7 @@ function main {
     vt vermont
 
   echo
-  echo "[$command_name] Merging borders of secondary region (Maine, New Hampshire, New York, Vermont)"
+  echo "[$command_name] Merging borders of secondary regions (Maine, New Hampshire, New York, Vermont)"
   bin/calculate-buffered-border --buffer -0.75 new_york
   bin/merge-borders \
     me maine \
@@ -95,7 +95,7 @@ function main {
     vt vermont
 
   echo
-  echo "[$command_name] Extracting bounding box of foreground and secondary regions (nh-vt, me-nh-nybuffered-vt)"
+  echo "[$command_name] Extracting bounding boxes of foreground and secondary regions (nh-vt, me-nh-nybuffered-vt)"
   bin/extract-bounds nh-vt me-nh-nybuffered-vt
   bin/calculate-bounds nh-vt me-nh-nybuffered-vt
 
@@ -123,20 +123,47 @@ function main {
   bin/merge-regions nh-vt new_hampshire vermont
 
   echo
-  echo "[$command_name] Merging background regions (Connecticut, Massachusetts, New Brunswick, New York, Ontario, Québec, Rhode Island)"
+  echo "[$command_name] Merging background regions (Connecticut, Massachusetts, Maine, New Brunswick, New York, Ontario, Québec, Rhode Island)"
   bin/merge-regions \
-    ct-ma-nb-ny-on-qc-ri \
-    connecticut massachusetts new_brunswick new_york ontario quebec rhode_island
+    ct-ma-me-nb-ny-on-qc-ri \
+    connecticut massachusetts maine new_brunswick new_york ontario quebec rhode_island
+
+  echo
+  echo "[$command_name] Extracting borders from non-secondary background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island)"
+  bin/extract-border \
+    connecticut Connecticut \
+    massachusetts Massachusetts \
+    new_brunswick "New Brunswick  Nouveau-Brunswick" \
+    ontario Ontario \
+    quebec Québec \
+    rhode_island "Rhode Island"
+
+  echo
+  echo "[$command_name] Merging borders of background regions (Connecticut, Massachusetts, Maine, New Brunswick, New York, Ontario, Québec, Rhode Island)"
+  bin/merge-borders \
+    ct connecticut \
+    ma massachusetts \
+    me maine \
+    nb new_brunswick \
+    ny new_york \
+    on ontario \
+    qc quebec \
+    ri rhode_island
+
+  echo
+  echo "[$command_name] Calculating bounding box of background region (ct-ma-me-nb-ny-on-qc-ri)"
+  bin/extract-bounds ct-ma-me-nb-ny-on-qc-ri
+  bin/calculate-bounds ct-ma-me-nb-ny-on-qc-ri
 
   echo
   echo "[$command_name] Converting foreground region into PMTiles archive (nh-vt)"
   bin/convert-region-to-pmtiles nh-vt
 
   echo
-  echo "[$command_name] Converting background region into PMTiles archive (ct-ma-nb-ny-on-qc-ri)"
+  echo "[$command_name] Converting background region into PMTiles archive (ct-ma-me-nb-ny-on-qc-ri)"
   bin/convert-region-to-pmtiles \
     --bounds me-nh-nybuffered-vt \
-    ct-ma-nb-ny-on-qc-ri
+    ct-ma-me-nb-ny-on-qc-ri
 
   echo
   echo "[$command_name] Generating scrim PMTiles archive (me-nh-nybuffered-vt-minus-nh-vt)"
@@ -144,14 +171,14 @@ function main {
 
   echo
   echo "[$command_name] Copying tile archives to development repo (background, scrim, foreground)"
-  bin/copy-to-development ct-ma-nb-ny-on-qc-ri background
+  bin/copy-to-development ct-ma-me-nb-ny-on-qc-ri background
   bin/copy-to-development me-nh-nybuffered-vt-minus-nh-vt scrim
   bin/copy-to-development nh-vt foreground
 
   if [ "$deploy" ]; then
     echo
     echo "[$command_name] Deploying files to development repo (background, scrim, foreground)"
-    bin/deploy ct-ma-nb-ny-on-qc-ri background
+    bin/deploy ct-ma-me-nb-ny-on-qc-ri background
     bin/deploy me-nh-nybuffered-vt-minus-nh-vt scrim
     bin/deploy nh-vt foreground
   fi
