@@ -167,19 +167,19 @@ function main {
 
   echo
   echo "[$command_name] Generating scrim PMTiles archive (me-nh-nybuffered-vt-minus-nh-vt)"
-  bin/generate-scrim me-nh-nybuffered-vt nh-vt
+  bin/generate-scrim ct-ma-me-nb-ny-on-qc-ri nh-vt
 
   echo
   echo "[$command_name] Copying tile archives to development repo (background, scrim, foreground)"
   bin/copy-to-development ct-ma-me-nb-ny-on-qc-ri background
-  bin/copy-to-development me-nh-nybuffered-vt-minus-nh-vt scrim
+  bin/copy-to-development ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt scrim
   bin/copy-to-development nh-vt foreground
 
   if [ "$deploy" ]; then
     echo
     echo "[$command_name] Deploying files to development repo (background, scrim, foreground)"
     bin/deploy ct-ma-me-nb-ny-on-qc-ri background
-    bin/deploy me-nh-nybuffered-vt-minus-nh-vt scrim
+    bin/deploy ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt scrim
     bin/deploy nh-vt foreground
   fi
 }
