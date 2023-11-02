@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
 function main {
-  set -e
-
-  local -r start_time="$(date -u '+%Y-%m-%d %H:%M:%S')"
-  echo "[copy] Started at $start_time"
-
   local -a input_files=()
   local -a output_files=()
+
   while (($# > 0)); do
     input_files+=("tiles/$1.pmtiles")
     output_files+=("../catamount-hardware/static/maps/$2.pmtiles")
@@ -15,9 +16,11 @@ function main {
   done
 
   for index in "${!input_files[@]}"; do
-    echo "[copy] Copying ${input_files[$index]} to ${output_files[$index]}"
+    echo "[$command_name] Copying ${input_files[$index]} to ${output_files[$index]}"
     cp "${input_files[$index]}" "${output_files[$index]}"
   done
 }
 
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
 main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

@@ -8,11 +8,16 @@ set -e
 function main {
   local bounds_arg="--no-bounds"
 
+  local deploy
   local download_region
   local update_regions="update regions"
 
   while (($# > 0)); do
     case "$1" in
+    --deploy)
+      deploy="deploy to production"
+      shift
+      ;;
     --download)
       download_region="download regions"
       update_regions=
@@ -138,10 +143,18 @@ function main {
   bin/generate-scrim me-nh-nybuffered-vt nh-vt
 
   echo
-  echo "[$command_name] Copying files to development repo (nh-vt)"
+  echo "[$command_name] Copying tile archives to development repo (background, scrim, foreground)"
   bin/copy-to-development ct-ma-nb-ny-on-qc-ri background
   bin/copy-to-development me-nh-nybuffered-vt-minus-nh-vt scrim
   bin/copy-to-development nh-vt foreground
+
+  if [ "$deploy" ]; then
+    echo
+    echo "[$command_name] Deploying files to development repo (background, scrim, foreground)"
+    bin/deploy ct-ma-nb-ny-on-qc-ri background
+    bin/deploy me-nh-nybuffered-vt-minus-nh-vt scrim
+    bin/deploy nh-vt foreground
+  fi
 }
 
 echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"

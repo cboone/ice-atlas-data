@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  local -a local_files=()
+  local -a production_files=()
+
+  while (($# > 0)); do
+    local_files+=("tiles/$1.pmtiles")
+    production_files+=("r2:skating-atlas/$2.pmtiles")
+    shift 2
+  done
+
+  for index in "${!local_files[@]}"; do
+    echo "[$command_name] Deploying ${local_files[$index]} to ${production_files[$index]}"
+    rclone copyto \
+      --verbose --verbose \
+      --human-readable \
+      --progress \
+      --refresh-times \
+      --stats-one-line \
+      --use-mmap \
+      "${local_files[$index]}" "${production_files[$index]}"
+  done
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"
