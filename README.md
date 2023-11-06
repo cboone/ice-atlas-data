@@ -1,2 +1,3 @@
-# skating-atlas-data
- 
+# ice-atlas-data
+
+[Catamount Hardware](https://catamounthardware.com)
