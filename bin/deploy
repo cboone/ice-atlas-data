@@ -11,7 +11,7 @@ function main {
 
   while (($# > 0)); do
     local_files+=("tiles/$1.pmtiles")
-    production_files+=("r2:skating-atlas/$2.pmtiles")
+    production_files+=("r2:ice-atlas-data/$2.pmtiles")
     shift 2
   done
 

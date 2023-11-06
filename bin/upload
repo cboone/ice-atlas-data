@@ -11,8 +11,8 @@ function main {
   local -A regions=(["vt-nh"]=base ["ma-ny-on-qc-nb-me"]=background)
 
   for region in "${!regions[@]}"; do
-    echo "[upload] Uploading $region.pmtiles to r2:skating-atlas/${regions[$region]}.pmtiles"
-    rclone copyto --progress "$dir/tiles/$region.pmtiles" "r2:skating-atlas/${regions[$region]}.pmtiles"
+    echo "[upload] Uploading $region.pmtiles to r2:ice-atlas-data/${regions[$region]}.pmtiles"
+    rclone copyto --progress "$dir/tiles/$region.pmtiles" "r2:ice-atlas-data/${regions[$region]}.pmtiles"
   done
 }
 
