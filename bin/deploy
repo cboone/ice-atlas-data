@@ -20,8 +20,9 @@ function main {
     rclone copyto \
       --verbose --verbose \
       --human-readable \
+      --ignore-existing \
+      --no-update-modtime \
       --progress \
-      --refresh-times \
       --stats-one-line \
       --use-mmap \
       "${local_files[$index]}" "${production_files[$index]}"

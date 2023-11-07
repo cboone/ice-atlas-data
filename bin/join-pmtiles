@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  local -r output_file="$1"
+  shift
+  local -ar input_files=("$@")
+  local -r input_file_names="$(
+    IFS=", "
+    printf "%s" "${input_files[*]}"
+  )
+
+  echo "[$command_name] Joining $input_file_names into $bounds_file"
+  # jq --slurp ".[0].features[0].geometry.coordinates += .[1].features.[0].geometry.coordinates | .[0]" "bounding-boxes/$bounds_file.geojson" "borders/$hole_file.geojson" >"bounding-boxes/$output_file.geojson"
+
+  # echo "[$command_name] Converting $output_file from GeoJSON to MBTiles archive"
+  # tile-join \
+  #   --force \
+  #   --layer=scrim \
+  #   --maximum-zoom=g \
+  #   --output="tiles/$output_file.mbtiles" \
+  #   "bounding-boxes/$output_file.geojson"
+
+  # echo "[$command_name] Converting $output_file from MBTiles to PMTiles archive"
+  # pmtiles convert "tiles/$output_file.mbtiles" "tiles/$output_file.pmtiles"
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"
