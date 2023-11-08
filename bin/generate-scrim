@@ -17,7 +17,8 @@ function main {
   tippecanoe \
     --force \
     --layer=scrim \
-    --maximum-zoom=g \
+    --maximum-zoom=15 \
+    --minimum-zoom=6 \
     --output="tiles/$output_file.mbtiles" \
     "bounding-boxes/$output_file.geojson"
 

@@ -33,15 +33,17 @@ function main {
     --osm_path="/data/$input_file" \
     --output="/output/$output_file" \
     --bounds="$bounds" \
-    --nodemap-type=sparsearray \
-    --storage=ram \
-    --transportation_name_size_for_shield \
-    --transportation_name_limit_merge \
-    --boundary-osm-only \
     --building_merge_z13=false \
+    --exclude-layers=housenumber \
+    --languages=en \
     --max-point-buffer=4 \
     --maxzoom=15 \
+    --minzoom=6 \
+    --nodemap-type=sparsearray \
     --render_maxzoom=15 \
+    --storage=ram \
+    --transportation_name_limit_merge \
+    --use-wikidata=false \
     --force
 }
 
