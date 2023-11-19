@@ -9,9 +9,12 @@ function main {
   local -a local_files=()
   local -a production_files=()
 
+  local -r bucket="$1"
+  shift
+
   while (($# > 0)); do
     local_files+=("tiles/$1.pmtiles")
-    production_files+=("r2:ice-atlas-data/$2.pmtiles")
+    production_files+=("r2:ice-atlas-data-$bucket/$2.pmtiles")
     shift 2
   done
 
@@ -20,8 +23,7 @@ function main {
     rclone copyto \
       --verbose --verbose \
       --human-readable \
-      --ignore-existing \
-      --no-update-modtime \
+      --refresh-times \
       --progress \
       --stats-one-line \
       --use-mmap \

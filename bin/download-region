@@ -75,7 +75,7 @@ function main {
       --download-threads=10 \
       --download-chunk-size-mb=1000 \
       --exclude-layers=housenumber \
-      --fetch-wikidata=false \
+      --fetch-wikidata=true \
       --languages=en \
       --max-point-buffer=4 \
       --minzoom=6 \
@@ -84,7 +84,7 @@ function main {
       --render_maxzoom=15 \
       --storage=ram \
       --transportation_name_limit_merge \
-      --use-wikidata=false
+      --use-wikidata=true
   done
 }
 

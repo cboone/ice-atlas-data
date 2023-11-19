@@ -8,6 +8,7 @@ set -e
 function main {
   local bounds_arg="--no-bounds"
 
+  local bucket
   local deploy
   local download_region
   local update_regions="update regions"
@@ -15,8 +16,9 @@ function main {
   while (($# > 0)); do
     case "$1" in
     --deploy)
-      deploy="deploy to production"
-      shift
+      deploy="deploy"
+      bucket="$2"
+      shift 2
       ;;
     --download)
       download_region="download regions"
@@ -178,9 +180,9 @@ function main {
   if [ "$deploy" ]; then
     echo
     echo "[$command_name] Deploying files to development repo (background, scrim, foreground)"
-    bin/deploy ct-ma-me-nb-ny-on-qc-ri background
-    bin/deploy ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt scrim
-    bin/deploy nh-vt foreground
+    bin/deploy "$bucket" ct-ma-me-nb-ny-on-qc-ri background
+    bin/deploy "$bucket" ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt scrim
+    bin/deploy "$bucket" nh-vt foreground
   fi
 }
 
