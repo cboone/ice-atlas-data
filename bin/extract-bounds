@@ -12,13 +12,19 @@ function main {
 
     if ! jq --exit-status ".bbox" <"$source" >/dev/null; then
       echo "[$command_name] Calculating bounding box of and adding it to $source"
-      yarn mapshaper \
-        -i "$source" \
-        -o "$source" bbox force prettify
+      (
+        set -x
+        yarn mapshaper \
+          -i "$source" \
+          -o "$source" bbox force prettify
+      )
     fi
 
     echo "[$command_name] Extracting bounding box of $source and storing it in $destination"
-    jq --raw-output ".bbox | @csv" <"$source" >"$destination"
+    (
+      set -x
+      jq --raw-output ".bbox | @csv" <"$source" >"$destination"
+    )
   done
 }
 

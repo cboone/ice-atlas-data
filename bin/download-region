@@ -6,12 +6,15 @@ declare -r command_name=$(basename "$0")
 set -e
 
 function main {
+  local -a config=()
   local -a regions=()
 
   local bounds
   local bounds_args
   local remove_first
   local use_existing_bounds
+
+  readarray -t config <config/planetiler.config
 
   while (($# > 0)); do
     case "$1" in
@@ -54,7 +57,7 @@ function main {
         bounds=$(cat "$bounds_file")
         echo "[$command_name] Using existing bounds from $bounds_file: [$bounds]"
       else
-        echo "[$command_name] Could not find existing bounds at $bounds_file"
+        echo "[$command_name] Could not find existing bounds at $bounds_file, proceeding without bounds"
       fi
     fi
 
@@ -62,29 +65,22 @@ function main {
       bounds_args="--bounds=$bounds"
     fi
 
-    docker run \
-      --rm \
-      -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
-      -v "./pbf":/data \
-      ghcr.io/onthegomap/planetiler:latest \
-      --download \
-      --only-download \
-      --area="$region" \
-      "$bounds_args" \
-      --building_merge_z13=false \
-      --download-threads=10 \
-      --download-chunk-size-mb=1000 \
-      --exclude-layers=housenumber \
-      --fetch-wikidata=true \
-      --languages=en \
-      --max-point-buffer=4 \
-      --minzoom=6 \
-      --maxzoom=15 \
-      --nodemap-type=sparsearray \
-      --render_maxzoom=15 \
-      --storage=ram \
-      --transportation_name_limit_merge \
-      --use-wikidata=true
+    (
+      set -x
+      docker run \
+        --rm \
+        -e JAVA_OPTS="--config=/config/planetiler.properties" \
+        -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
+        -v "./config":/config \
+        -v "./pbf":/data \
+        ghcr.io/onthegomap/planetiler:latest \
+        "${config[@]}" \
+        --download \
+        --only-download \
+        --area="$region" \
+        "$bounds_args" \
+        --fetch-wikidata=true
+    )
   done
 }
 

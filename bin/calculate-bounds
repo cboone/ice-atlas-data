@@ -11,13 +11,16 @@ function main {
     local destination="bounding-boxes/$region.geojson"
 
     echo "[$command_name] Calculating bounding box of $source and storing in $destination"
-    ogr2ogr \
-      -f GeoJSON \
-      -dialect sqlite \
-      -sql "select ST_Envelope(geometry) as geometry FROM '$region'" \
-      -nln "$region" \
-      "$destination" \
-      "$source"
+    (
+      set -x
+      ogr2ogr \
+        -f GeoJSON \
+        -dialect sqlite \
+        -sql "select ST_Envelope(geometry) as geometry FROM '$region'" \
+        -nln "$region" \
+        "$destination" \
+        "$source"
+    )
   done
 }
 

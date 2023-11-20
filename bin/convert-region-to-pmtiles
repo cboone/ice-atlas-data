@@ -6,10 +6,14 @@ declare -r command_name=$(basename "$0")
 set -e
 
 function main {
+  local -a config=()
+
   local bounds
   local bounds_file
   local input_file
   local output_file
+
+  readarray -t config <config/planetiler.config
 
   if [[ "$1" == "--bounds" ]]; then
     bounds_file="$2"
@@ -23,28 +27,21 @@ function main {
 
   echo "[convert-region-to-pmtiles] Converting pbf/$input_file into tiles/$output_file using [$bounds] as the bounding box"
 
-  set -x
-  docker run \
-    --rm \
-    -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
-    -v "./pbf":/data \
-    -v "./tiles":/output \
-    ghcr.io/onthegomap/planetiler:latest \
-    --osm_path="/data/$input_file" \
-    --output="/output/$output_file" \
-    --bounds="$bounds" \
-    --building_merge_z13=false \
-    --exclude-layers=housenumber \
-    --languages=en \
-    --max-point-buffer=4 \
-    --maxzoom=15 \
-    --minzoom=6 \
-    --nodemap-type=sparsearray \
-    --render_maxzoom=15 \
-    --storage=ram \
-    --transportation_name_limit_merge \
-    --use-wikidata=true \
-    --force
+  (
+    set -x
+    docker run \
+      --rm \
+      -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
+      -v "./config":/config \
+      -v "./pbf":/data \
+      -v "./tiles":/output \
+      ghcr.io/onthegomap/planetiler:latest \
+      "${config[@]}" \
+      --osm_path="/data/$input_file" \
+      --output="/output/$output_file" \
+      --bounds="$bounds" \
+      --force
+  )
 }
 
 echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"

@@ -12,7 +12,10 @@ function main {
   for region in "${regions[@]}"; do
     echo "[update] Updating $region"
 
-    "bin/pyosmium-up-to-date" -vvvv --size 10000 "pbf/sources/$region.osm.pbf"
+    (
+      set -x
+      "bin/pyosmium-up-to-date" -vvvv --size 10000 "pbf/sources/$region.osm.pbf"
+    )
   done
 }
 

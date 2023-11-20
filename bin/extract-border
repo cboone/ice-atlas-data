@@ -22,16 +22,22 @@ function main {
     local destination="borders/$region"
 
     echo "[$command_name] Extracting admin level 4 borders from \"$source\" into \"$destination\""
-    osm_extract_polygon \
-      --geojson \
-      --file "$source" \
-      --path "$destination" \
-      --max 4 \
-      --min 4 \
-      --overwrite
+    (
+      set -x
+      osm_extract_polygon \
+        --geojson \
+        --file "$source" \
+        --path "$destination" \
+        --max 4 \
+        --min 4 \
+        --overwrite
+    )
 
     echo "[$command_name] Copying $destination/$border_name.geojson to $destination.geojson"
-    cp "$destination/$border_name.geojson" "$destination.geojson"
+    (
+      set -x
+      cp "$destination/$border_name.geojson" "$destination.geojson"
+    )
   done
 }
 

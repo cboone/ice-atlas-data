@@ -20,14 +20,17 @@ function main {
 
   for index in "${!local_files[@]}"; do
     echo "[$command_name] Deploying ${local_files[$index]} to ${production_files[$index]}"
-    rclone copyto \
-      --verbose --verbose \
-      --human-readable \
-      --refresh-times \
-      --progress \
-      --stats-one-line \
-      --use-mmap \
-      "${local_files[$index]}" "${production_files[$index]}"
+    (
+      set -x
+      rclone copyto \
+        --verbose --verbose \
+        --human-readable \
+        --refresh-times \
+        --progress \
+        --stats-one-line \
+        --use-mmap \
+        "${local_files[$index]}" "${production_files[$index]}"
+    )
   done
 }
 

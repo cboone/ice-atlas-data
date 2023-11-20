@@ -17,7 +17,10 @@ function main {
 
   for index in "${!input_files[@]}"; do
     echo "[$command_name] Copying ${input_files[$index]} to ${output_files[$index]}"
-    cp "${input_files[$index]}" "${output_files[$index]}"
+    (
+      set -x
+      cp "${input_files[$index]}" "${output_files[$index]}"
+    )
   done
 }
 

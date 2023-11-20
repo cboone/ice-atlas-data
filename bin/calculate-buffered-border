@@ -30,13 +30,16 @@ function main {
     if [[ -f "$destination " ]]; then
       rm "$destination"
     fi
-    ogr2ogr \
-      -f GeoJSON \
-      -dialect sqlite \
-      -sql "select ST_Buffer(geometry, $buffer) as geometry FROM '$region'" \
-      -nln "$region-buffered" \
-      "$destination" \
-      "$source"
+    (
+      set -x
+      ogr2ogr \
+        -f GeoJSON \
+        -dialect sqlite \
+        -sql "select ST_Buffer(geometry, $buffer) as geometry FROM '$region'" \
+        -nln "$region-buffered" \
+        "$destination" \
+        "$source"
+    )
   done
 }
 

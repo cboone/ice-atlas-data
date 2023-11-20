@@ -21,15 +21,19 @@ function main {
   ).geojson"
 
   echo "[$command_name] Merging ${input_files[*]} into $output_file"
-  yarn mapshaper \
-    -i "${input_files[@]}" combine-files \
-    -merge-layers flatten force \
-    -dissolve \
-    -dissolve2 sliver-control=0 \
-    -filter-slivers sliver-control=0 remove-empty \
-    -rename-layers vt-nh \
-    -clean \
-    -o "$output_file" bbox geojson-type=FeatureCollection prettify
+
+  (
+    set -x
+    yarn mapshaper \
+      -i "${input_files[@]}" combine-files \
+      -merge-layers flatten force \
+      -dissolve \
+      -dissolve2 sliver-control=0 \
+      -filter-slivers sliver-control=0 remove-empty \
+      -rename-layers vt-nh \
+      -clean \
+      -o "$output_file" bbox geojson-type=FeatureCollection prettify
+  )
 }
 
 echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
