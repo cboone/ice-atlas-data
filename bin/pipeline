@@ -47,13 +47,13 @@ function main {
 
   echo
   if [[ "$download_region" ]]; then
-    echo "[$command_name] Downloading foreground regions (New Hampshire, Vermont)"
+    echo "[$command_name] Downloading foreground regions"
     bin/download-region \
       --force \
       "$bounds_arg" \
       new_hampshire vermont
 
-    echo "[$command_name] Downloading secondary regions (Maine, New York)"
+    echo "[$command_name] Downloading secondary regions"
     bin/download-region \
       --force \
       "$bounds_arg" \
@@ -64,17 +64,17 @@ function main {
 
   echo
   if [[ "$update_regions" ]]; then
-    echo "[$command_name] Updating foreground regions (New Hampshire, Vermont)"
+    echo "[$command_name] Updating foreground regions"
     bin/update-region new_hampshire vermont
 
-    echo "[$command_name] Updating secondary regions (Maine, New York)"
+    echo "[$command_name] Updating secondary regions"
     bin/update-region maine new_york
   else
     echo "[$command_name] Skipping updates of foreground and secondary regions"
   fi
 
   echo
-  echo "[$command_name] Extracting borders from foreground and secondary regions (Vermont, New Hampshire, Maine, New York)"
+  echo "[$command_name] Extracting borders from foreground and secondary regions"
   bin/extract-border \
     maine Maine \
     new_hampshire "New Hampshire" \
@@ -82,7 +82,7 @@ function main {
     vermont Vermont
 
   echo
-  echo "[$command_name] Calculating bounding boxes of foreground and secondary region (Maine, New Hampshire, New York, Vermont)"
+  echo "[$command_name] Calculating bounding boxes of foreground and secondary region"
   bin/extract-bounds maine new_hampshire new_york vermont
   bin/calculate-bounds maine new_hampshire new_york vermont
 
@@ -93,7 +93,7 @@ function main {
     vt vermont
 
   echo
-  echo "[$command_name] Merging borders of secondary regions (Maine, New Hampshire, New York, Vermont)"
+  echo "[$command_name] Merging borders of secondary regions"
   bin/calculate-buffered-border --buffer -0.75 new_york
   bin/merge-borders \
     me maine \
@@ -102,13 +102,13 @@ function main {
     vt vermont
 
   echo
-  echo "[$command_name] Extracting bounding boxes of foreground and secondary regions (nh-vt, me-nh-nybuffered-vt)"
+  echo "[$command_name] Extracting bounding boxes of foreground and secondary regions"
   bin/extract-bounds nh-vt me-nh-nybuffered-vt
   bin/calculate-bounds nh-vt me-nh-nybuffered-vt
 
   echo
   if [[ "$download_region" ]]; then
-    echo "[$command_name] Downloading background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island)"
+    echo "[$command_name] Downloading background regions"
     bin/download-region \
       --force \
       --bounds "$(cat bounding-boxes/me-nh-nybuffered-vt.csv)" \
@@ -119,24 +119,24 @@ function main {
 
   echo
   if [[ "$update_regions" ]]; then
-    echo "[$command_name] Updating background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island))"
+    echo "[$command_name] Updating background regions"
     bin/update-region connecticut massachusetts new_brunswick ontario quebec rhode_island
   else
     echo "[$command_name] Skipping updates of background regions"
   fi
 
   echo
-  echo "[$command_name] Merging foreground regions (New Hampshire, Vermont)"
+  echo "[$command_name] Merging foreground regions"
   bin/merge-regions nh-vt new_hampshire vermont
 
   echo
-  echo "[$command_name] Merging background regions (Connecticut, Massachusetts, Maine, New Brunswick, New York, Ontario, Québec, Rhode Island)"
+  echo "[$command_name] Merging background regions"
   bin/merge-regions \
     ct-ma-me-nb-ny-on-qc-ri \
     connecticut massachusetts maine new_brunswick new_york ontario quebec rhode_island
 
   echo
-  echo "[$command_name] Extracting borders from non-secondary background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island)"
+  echo "[$command_name] Extracting borders from non-secondary background regions"
   bin/extract-border \
     connecticut Connecticut \
     massachusetts Massachusetts \
@@ -146,7 +146,7 @@ function main {
     rhode_island "Rhode Island"
 
   echo
-  echo "[$command_name] Merging borders of background regions (Connecticut, Massachusetts, Maine, New Brunswick, New York, Ontario, Québec, Rhode Island)"
+  echo "[$command_name] Merging borders of background regions"
   bin/merge-borders \
     ct connecticut \
     ma massachusetts \
@@ -158,40 +158,40 @@ function main {
     ri rhode_island
 
   echo
-  echo "[$command_name] Calculating bounding box of background region (ct-ma-me-nb-ny-on-qc-ri)"
+  echo "[$command_name] Calculating bounding box of background region"
   bin/extract-bounds ct-ma-me-nb-ny-on-qc-ri
   bin/calculate-bounds ct-ma-me-nb-ny-on-qc-ri
 
   echo
-  echo "[$command_name] Converting foreground region into PMTiles archive (nh-vt)"
+  echo "[$command_name] Converting foreground region into tileset"
   bin/convert-region-to-pmtiles nh-vt
 
   echo
-  echo "[$command_name] Converting background region into PMTiles archive (ct-ma-me-nb-ny-on-qc-ri)"
+  echo "[$command_name] Converting background region into tileset"
   bin/convert-region-to-pmtiles \
     --bounds me-nh-nybuffered-vt \
     ct-ma-me-nb-ny-on-qc-ri
 
   echo
   if [[ "$generate_scrim" ]]; then
-    echo "[$command_name] Generating scrim PMTiles archive (ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt)"
+    echo "[$command_name] Generating scrim tileset"
     bin/generate-scrim
   else
-    echo "[$command_name] Skipping scrim generation"
+    echo "[$command_name] Skipping scrim tileset generation"
   fi
 
   echo
-  echo "[$command_name] Copying tile archives to development repo (background, scrim, foreground)"
-  bin/copy-to-development ct-ma-me-nb-ny-on-qc-ri background
-  bin/copy-to-development ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt scrim
-  bin/copy-to-development nh-vt foreground
+  echo "[$command_name] Merging tilesets"
+  bin/merge-layers ct-ma-me-nb-ny-on-qc-ri nh-vt
+
+  echo
+  echo "[$command_name] Copying tileset to development repo"
+  bin/copy-to-development ice-atlas ice-atlas
 
   if [[ "$deploy" ]]; then
     echo
-    echo "[$command_name] Deploying files to development repo (background, scrim, foreground)"
-    bin/deploy "$bucket" ct-ma-me-nb-ny-on-qc-ri background
-    bin/deploy "$bucket" ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt scrim
-    bin/deploy "$bucket" nh-vt foreground
+    echo "[$command_name] Deploying tileset to $bucket repo"
+    bin/deploy "$bucket" ice-atlas ice-atlas
   fi
 }
 
