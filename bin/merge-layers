@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  local -r background="$1"
+  local -r background_file="tiles/$background.pmtiles"
+  local -r foreground="$2"
+  local -r foreground_file="tiles/$foreground.pmtiles"
+
+  echo "[$command_name] Merging scrim and $background"
+  (
+    set -x
+    tile-join --force \
+      --attribution="<a href='http://openmaptiles.org/' target='_blank'>&copy; OpenMapTiles</a> <a href='https://openstreetmap.org' target='_blank'>&copy; OpenStreetMap contributors</a>" \
+      --description="background + scrim" \
+      --name="background + scrim" \
+      --rename-layer=aerodrome_label:bg-aerodrome_label --layer=bg-aerodrome_label \
+      --rename-layer=aeroway:bg-aeroway --layer=bg-aeroway \
+      --rename-layer=boundary:bg-boundary --layer=bg-boundary \
+      --rename-layer=building:bg-building --layer=bg-building \
+      --rename-layer=landcover:bg-landcover --layer=bg-landcover \
+      --rename-layer=landuse:bg-landuse --layer=bg-landuse \
+      --rename-layer=mountain_peak:bg-mountain_peak --layer=bg-mountain_peak \
+      --rename-layer=park:bg-park --layer=bg-park \
+      --rename-layer=place:bg-place --layer=bg-place \
+      --rename-layer=poi:bg-poi --layer=bg-poi \
+      --rename-layer=transportation:bg-transportation --layer=bg-transportation \
+      --rename-layer=transportation_name:bg-transportation_name --layer=bg-transportation_name \
+      --rename-layer=water:bg-water --layer=bg-water \
+      --rename-layer=water_name:bg-water_name --layer=bg-water_name \
+      --rename-layer=waterway:bg-waterway --layer=bg-waterway \
+      --layer=scrim \
+      --output=tiles/background.pmtiles \
+      tiles/scrim.pmtiles \
+      "$background_file"
+  )
+
+  echo "[$command_name] Merging background and $foreground"
+  (
+    set -x
+    tile-join --force \
+      --output=tiles/ice-atlas.pmtiles \
+      tiles/background.pmtiles \
+      "$foreground_file"
+  )
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

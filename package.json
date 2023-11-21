@@ -2,6 +2,7 @@
   "license": "UNLICENSED",
   "private": true,
   "devDependencies": {
-    "mapshaper": "^0.6.44"
+    "mapshaper": "^0.6.44",
+    "osmtogeojson": "^3.0.0-beta.5"
   }
 }

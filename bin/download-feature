@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  local type="node"
+  if [[ "$1" == "way" ]]; then
+    type="way"
+    shift
+  elif [[ "$1" == "relation" ]]; then
+    type="relation"
+    shift
+  fi
+  local -r id="$1"
+  local -r name="$2"
+  local -r output_file="features/$name.geojson"
+
+  echo "[$command_name] Downloading $name ($type $id)"
+  (
+    set -x
+    curl \
+      --get \
+      --data-urlencode "data=[out:json][timeout:25];($type($id););out body;>;out skel qt;" \
+      "http://overpass-api.de/api/interpreter" |
+      yarn --silent osmtogeojson \
+        >"$output_file"
+  )
+
+  echo "[$command_name] Downloaded $type $id at $output_file"
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

@@ -11,6 +11,7 @@ function main {
   local bucket
   local deploy
   local download_region
+  local generate_scrim="generate scrim"
   local update_regions="update regions"
 
   while (($# > 0)); do
@@ -33,6 +34,10 @@ function main {
       bounds_arg="--use-existing-bounds"
       shift
       ;;
+    --use-existing-scrim)
+      generate_scrim=""
+      shift
+      ;;
     *)
       echo "[$command_name] Unexpected option \"$1\" ignored"
       shift
@@ -41,7 +46,7 @@ function main {
   done
 
   echo
-  if [ "$download_region" ]; then
+  if [[ "$download_region" ]]; then
     echo "[$command_name] Downloading foreground regions (New Hampshire, Vermont)"
     bin/download-region \
       --force \
@@ -58,7 +63,7 @@ function main {
   fi
 
   echo
-  if [ "$update_regions" ]; then
+  if [[ "$update_regions" ]]; then
     echo "[$command_name] Updating foreground regions (New Hampshire, Vermont)"
     bin/update-region new_hampshire vermont
 
@@ -102,7 +107,7 @@ function main {
   bin/calculate-bounds nh-vt me-nh-nybuffered-vt
 
   echo
-  if [ "$download_region" ]; then
+  if [[ "$download_region" ]]; then
     echo "[$command_name] Downloading background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island)"
     bin/download-region \
       --force \
@@ -113,7 +118,7 @@ function main {
   fi
 
   echo
-  if [ "$update_regions" ]; then
+  if [[ "$update_regions" ]]; then
     echo "[$command_name] Updating background regions (Connecticut, Massachusetts, New Brunswick, Ontario, Québec, Rhode Island))"
     bin/update-region connecticut massachusetts new_brunswick ontario quebec rhode_island
   else
@@ -168,8 +173,12 @@ function main {
     ct-ma-me-nb-ny-on-qc-ri
 
   echo
-  echo "[$command_name] Generating scrim PMTiles archive (me-nh-nybuffered-vt-minus-nh-vt)"
-  bin/generate-scrim ct-ma-me-nb-ny-on-qc-ri nh-vt
+  if [[ "$generate_scrim" ]]; then
+    echo "[$command_name] Generating scrim PMTiles archive (ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt)"
+    bin/generate-scrim
+  else
+    echo "[$command_name] Skipping scrim generation"
+  fi
 
   echo
   echo "[$command_name] Copying tile archives to development repo (background, scrim, foreground)"
@@ -177,7 +186,7 @@ function main {
   bin/copy-to-development ct-ma-me-nb-ny-on-qc-ri-minus-nh-vt scrim
   bin/copy-to-development nh-vt foreground
 
-  if [ "$deploy" ]; then
+  if [[ "$deploy" ]]; then
     echo
     echo "[$command_name] Deploying files to development repo (background, scrim, foreground)"
     bin/deploy "$bucket" ct-ma-me-nb-ny-on-qc-ri background

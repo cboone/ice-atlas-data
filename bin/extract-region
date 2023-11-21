@@ -21,15 +21,17 @@ function main {
 
   echo "[$command_name] Extracting $input_file into $output_file using $bounds_file as the bounding polygon"
 
-  set -x
-  osmium extract \
-    "$input_file" \
-    --overwrite \
-    --polygon "$bounds_file" \
-    --set-bounds \
-    --strategy complete_ways \
-    --option relations=false \
-    --output "$output_file"
+  (
+    set -x
+    osmium extract \
+      "$input_file" \
+      --overwrite \
+      --polygon "$bounds_file" \
+      --set-bounds \
+      --strategy complete_ways \
+      --option relations=false \
+      --output "$output_file"
+  )
 }
 
 echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"

@@ -6,32 +6,43 @@ declare -r command_name=$(basename "$0")
 set -e
 
 function main {
-  local -r bounds_file="$1"
-  local -r hole_file="$2"
-  local -r output_file="$bounds_file-minus-$hole_file"
+  local -r bounds="ct-ma-me-nb-ny-on-qc-ri"
+  local -r bounds_file="bounding-boxes/$bounds.geojson"
+  local -r states_hole="nh-vt"
+  local -r states_hole_file="borders/$states_hole.geojson"
+  local -r scrim="scrim"
+  local -r scrim_file="bounding-boxes/$scrim.geojson"
 
-  echo "[$command_name] Subtracting $hole_file from $bounds_file"
+  echo "[$command_name] Subtracting $states_hole, Champlain, Memphremagog, and Umbagog from $bounds"
   (
     set -x
-    jq --slurp ".[0].features[0].geometry.coordinates += .[1].features.[0].geometry.coordinates | .[0]" "bounding-boxes/$bounds_file.geojson" "borders/$hole_file.geojson" >"bounding-boxes/$output_file.geojson"
+    jq --slurp \
+      ".[0].features[0].geometry.coordinates += .[1].features.[0].geometry.coordinates \
+    | .[0].features[0].geometry.coordinates += .[2].features.[0].geometry.coordinates \
+    | .[0].features[0].geometry.coordinates += .[3].features.[0].geometry.coordinates \
+    | .[0].features[0].geometry.coordinates += .[4].features.[0].geometry.coordinates \
+    | .[0]" \
+      "$bounds_file" \
+      "$states_hole_file" \
+      "features/lake-champlain.geojson" \
+      "features/lake-memphremagog.geojson" \
+      "features/umbagog-lake.geojson" \
+      >"$scrim_file"
   )
 
-  echo "[$command_name] Converting $output_file from GeoJSON to MBTiles archive"
+  echo "[$command_name] Converting $scrim_file from GeoJSON to PMTiles archive"
   (
     set -x
     tippecanoe \
+      --attribution="<a href='http://openmaptiles.org/' target='_blank'>&copy; OpenMapTiles</a> <a href='https://openstreetmap.org' target='_blank'>&copy; OpenStreetMap contributors</a>" \
+      --description="scrim" \
       --force \
-      --layer=scrim \
-      --maximum-zoom=15 \
+      --layer="scrim" \
+      --name="scrim" \
+      --maximum-zoom=14 \
       --minimum-zoom=6 \
-      --output="tiles/$output_file.mbtiles" \
-      "bounding-boxes/$output_file.geojson"
-  )
-
-  echo "[$command_name] Converting $output_file from MBTiles to PMTiles archive"
-  (
-    set -x
-    pmtiles convert "tiles/$output_file.mbtiles" "tiles/$output_file.pmtiles"
+      --output="tiles/$scrim.pmtiles" \
+      "$scrim_file"
   )
 }
 
