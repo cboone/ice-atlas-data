@@ -11,6 +11,7 @@ function main {
   local bucket
   local deploy
   local download_region
+  local generate_isobaths
   local generate_scrim="generate scrim"
   local update_regions="update regions"
 
@@ -24,6 +25,10 @@ function main {
     --download)
       download_region="download regions"
       update_regions=
+      shift
+      ;;
+    --generate-isobaths)
+      generate_isobaths="generate isobaths"
       shift
       ;;
     --no-update)
@@ -177,7 +182,15 @@ function main {
     echo "[$command_name] Generating scrim tileset"
     bin/generate-scrim
   else
-    echo "[$command_name] Skipping scrim tileset generation"
+    echo "[$command_name] Skipping scrim tileset generation, using existing scrim"
+  fi
+
+  echo
+  if [[ "$generate_isobaths" ]]; then
+    echo "[$command_name] Generating isobaths"
+    bin/generate-isobaths
+  else
+    echo "[$command_name] Skipping isobath generation, using existing isobaths"
   fi
 
   echo

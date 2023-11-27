@@ -39,13 +39,14 @@ function main {
       "$background_file"
   )
 
-  echo "[$command_name] Merging background and $foreground"
+  echo "[$command_name] Merging background, $foreground, and isobaths"
   (
     set -x
     tile-join --force \
       --output=tiles/ice-atlas.pmtiles \
       tiles/background.pmtiles \
-      "$foreground_file"
+      "$foreground_file" \
+      tiles/isobaths.pmtiles
   )
 }
 

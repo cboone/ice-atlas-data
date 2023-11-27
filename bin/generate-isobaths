@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  set -x
+
+  bin/generate-champlain-isobaths "$HOME/Documents/ice-atlas-other-data/bathymetry/vermont" "$HOME/Documents/ice-atlas-other-data/bathymetry/champlain-isobaths.geojson"
+  bin/generate-vt-isobaths "$HOME/Documents/ice-atlas-other-data/bathymetry/vermont/Bathymetric_Data.csv" "$HOME/Documents/ice-atlas-other-data/bathymetry/vt-isobaths.geojson"
+  bin/merge-isobaths tiles/isobaths.pmtiles "$HOME/Documents/ice-atlas-other-data/bathymetry/nh-isobaths.geojson" "$HOME/Documents/ice-atlas-other-data/bathymetry/vt-isobaths.geojson" "$HOME/Documents/ice-atlas-other-data/bathymetry/champlain-isobaths.geojson"
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

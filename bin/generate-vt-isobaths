@@ -24,6 +24,7 @@ function main {
     ogr2ogr -a_srs EPSG:4326 -oo X_POSSIBLE_NAMES="Lon*" -oo Y_POSSIBLE_NAMES="Lat*" "$input_dir/$input_filename.gpkg" "$input_file_path"
 
     qgis_process run native:splitvectorlayer \
+      --no-python \
       --INPUT="$input_dir/$input_filename.gpkg|layername=$input_filename" \
       --FIELD=LakeName \
       --PREFIX_FIELD=0 \
@@ -46,7 +47,7 @@ function main {
         --ContourType=0 \
         --ContourMethod=4 \
         --NContour=100 \
-        --ContourLevels='-400 -350 -300 -250 -200 -150 -100 -80 -60 -40 -20 -10 -5' \
+        --ContourLevels='-400 -350 -300 -250 -200 -150 -100 -80 -60 -50 -40 -25 -20 -15 -10 -5' \
         --LabelDecimalPlaces=0 \
         --LabelTrimZeros=true \
         --LabelUnits= \
