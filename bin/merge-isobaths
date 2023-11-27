@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  local -a input_file_args=()
+  local -r output_file_path="$1"
+  shift
+  while (($# > 0)); do
+    local input_file_path="$1"
+    local input_filename=$(basename "$input_file_path" | cut -d. -f1)
+    input_file_args+=("--named-layer=$input_filename:$input_file_path")
+    shift
+  done
+
+  (
+    set -x
+
+    tippecanoe --force --output="$output_file_path" --maximum-zoom=14 --minimum-zoom=6 --drop-densest-as-needed "${input_file_args[@]}"
+  )
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"

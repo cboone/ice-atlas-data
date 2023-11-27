@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+shopt -s expand_aliases
+
+alias qgis_process="/Applications/QGIS.app/Contents/MacOS/bin/qgis_process"
+
+# shellcheck disable=SC2155
+declare -r command_name=$(basename "$0")
+
+set -e
+
+function main {
+  local -r input_dir="$1"
+  local -r output_file_path="$2"
+  local -r output_filename=$(basename "$output_file_path" | cut -d. -f1)
+
+  mkdir -p "$input_dir/isobaths"
+
+  (
+    set -x
+
+    ogr2ogr -t_srs EPSG:4326 "$input_dir/ElevationDEM_LKCHDEM.gpkg" "$input_dir/ElevationDEM_LKCHDEM"
+
+    qgis_process run contourplugin:generatecontours \
+      --distance_units=feet \
+      --area_units=ha \
+      --ellipsoid=EPSG:7030 \
+      --InputLayer="$input_dir/ElevationDEM_LKCHDEM.gpkg|layername=Elevation_LKCHDEM_point" \
+      --InputField='"DEPTH_FT"' \
+      --DuplicatePointTolerance=10 \
+      --ContourType=0 \
+      --ContourMethod=4 \
+      --NContour=100 \
+      --ContourLevels='-400 -350 -300 -250 -200 -150 -100 -80 -60 -40 -20 -10 -5' \
+      --LabelDecimalPlaces=0 \
+      --LabelTrimZeros=true \
+      --LabelUnits= \
+      --OutputLayer="$input_dir/$output_filename.gpkg"
+
+    qgis_process run native:smoothgeometry \
+      --distance_units=feet \
+      --area_units=ha \
+      --ellipsoid=EPSG:7030 \
+      --INPUT="$input_dir/$output_filename.gpkg" \
+      --ITERATIONS=1 \
+      --OFFSET=0.5 \
+      --MAX_ANGLE=180 \
+      --OUTPUT="$input_dir/$output_filename-smoothed.gpkg"
+
+    ogr2ogr "$output_file_path" "$input_dir/$output_filename-smoothed.gpkg"
+
+  )
+}
+
+echo "[$command_name] Started at $(date -u '+%Y-%m-%d %H:%M:%S')"
+main "$@"
+echo "[$command_name] Finished at $(date -u '+%Y-%m-%d %H:%M:%S')"
