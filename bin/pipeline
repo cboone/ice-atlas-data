@@ -43,6 +43,10 @@ function main {
       generate_scrim=""
       shift
       ;;
+    --use-local-image)
+      export PLANETILER_IMAGE="openmaptiles/planetiler-openmaptiles:ice-atlas"
+      shift
+      ;;
     *)
       echo "[$command_name] Unexpected option \"$1\" ignored"
       shift

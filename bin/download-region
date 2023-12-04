@@ -6,6 +6,8 @@ declare -r command_name=$(basename "$0")
 set -e
 
 function main {
+  local -r default_planetiler_image="ghcr.io/onthegomap/planetiler:latest"
+
   local -a config=()
   local -a regions=()
 
@@ -73,7 +75,7 @@ function main {
         -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
         -v "./config":/config \
         -v "./pbf":/data \
-        ghcr.io/onthegomap/planetiler:latest \
+        "${PLANETILER_IMAGE:-$default_planetiler_image}" \
         "${config[@]}" \
         --download \
         --only-download \
