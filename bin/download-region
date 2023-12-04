@@ -72,17 +72,26 @@ function main {
       docker run \
         --rm \
         -e JAVA_OPTS="--config=/config/planetiler.properties" \
-        -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
+        -e JAVA_TOOL_OPTIONS="-Xmx32g -Xmn12g -XX:MaxHeapFreeRatio=40" \
         -v "./config":/config \
         -v "./pbf":/data \
         "${PLANETILER_IMAGE:-$default_planetiler_image}" \
         "${config[@]}" \
-        --download \
-        --only-download \
         --area="$region" \
         "$bounds_args" \
-        --fetch-wikidata=true
+        --download \
+        --fetch_wikidata=true \
+        --only-download
     )
+
+    if [[ -f "$destination.old" ]]; then
+      echo "[$command_name] Removing $destination.old"
+      (
+        set -x
+        rm "$destination.old"
+      )
+    fi
+
   done
 }
 

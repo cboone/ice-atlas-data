@@ -33,16 +33,17 @@ function main {
     set -x
     docker run \
       --rm \
-      -e JAVA_TOOL_OPTIONS="-Xmx32g -XX:MaxHeapFreeRatio=40" \
+      -e JAVA_TOOL_OPTIONS="-Xmx32g -Xmn12g -XX:MaxHeapFreeRatio=40" \
       -v "./config":/config \
       -v "./pbf":/data \
       -v "./tiles":/output \
       "${PLANETILER_IMAGE:-$default_planetiler_image}" \
       "${config[@]}" \
-      --osm_path="/data/$input_file" \
-      --output="/output/$output_file" \
       --bounds="$bounds" \
-      --force
+      --fetch_wikidata=false \
+      --force \
+      --osm_path="/data/$input_file" \
+      --output="/output/$output_file"
   )
 }
 
