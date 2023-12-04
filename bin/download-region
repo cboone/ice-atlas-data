@@ -49,8 +49,11 @@ function main {
     echo "[$command_name] Downloading $region from geofabrik to $destination"
 
     if [[ $remove_first && -f "$destination" ]]; then
-      echo "[$command_name] Removing old $destination first"
-      rm -rf "$destination"
+      echo "[$command_name] Marking $destination as .old while downloading new file"
+      (
+        set -x
+        mv "$destination" "$destination.old"
+      )
     fi
 
     if [[ ! $bounds && $use_existing_bounds ]]; then
