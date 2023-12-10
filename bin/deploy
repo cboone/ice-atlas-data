@@ -12,6 +12,13 @@ function main {
   local -r bucket="$1"
   shift
 
+  echo "[$command_name] Deploying to $bucket"
+
+  if (($# == 0)); then
+    local_files=(tiles/ice-atlas.pmtiles)
+    production_files=("r2:ice-atlas-data-$bucket/ice-atlas.pmtiles")
+  fi
+
   while (($# > 0)); do
     local_files+=("tiles/$1.pmtiles")
     production_files+=("r2:ice-atlas-data-$bucket/$2.pmtiles")
