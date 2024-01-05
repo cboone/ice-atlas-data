@@ -29,7 +29,7 @@ function main {
       -merge-layers flatten force \
       -dissolve \
       -dissolve2 sliver-control=0 \
-      -filter-slivers sliver-control=0 remove-empty \
+      -filter-slivers sliver-control=0 \
       -rename-layers vt-nh \
       -clean \
       -o "$output_file" bbox geojson-type=FeatureCollection prettify
