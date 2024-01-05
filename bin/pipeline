@@ -208,7 +208,7 @@ function main {
   if [[ "$deploy" ]]; then
     echo
     echo "[$command_name] Deploying tileset to $bucket repo"
-    bin/deploy "$bucket" ice-atlas ice-atlas
+    bin/deploy "$bucket"
   fi
 }
 
