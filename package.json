@@ -2,7 +2,7 @@
   "license": "UNLICENSED",
   "private": true,
   "devDependencies": {
-    "mapshaper": "https://github.com/cboone/mapshaper.git",
+    "mapshaper": "^0.6.59",
     "osmtogeojson": "https://github.com/cboone/osmtogeojson.git"
   }
 }

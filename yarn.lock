@@ -443,9 +443,10 @@ keygrip@~1.1.0:
   dependencies:
     tsscmp "1.0.6"
 
-"mapshaper@https://github.com/cboone/mapshaper.git":
+mapshaper@^0.6.59:
   version "0.6.59"
-  resolved "https://github.com/cboone/mapshaper.git#9a71c597949cf80a239eb27ad49fcec8f8e504b1"
+  resolved "https://registry.yarnpkg.com/mapshaper/-/mapshaper-0.6.59.tgz#a8e5ccd0efb870fe332b13368afd8e02d02dddaf"
+  integrity sha512-MXRVQW6Io/fDR3054PoUpSSau5CoAUxo0K7hagOf3kK0KDDsGP+LWiIVUMEsKtsh8pJd+NwM8dsW+oApJtcm/A==
   dependencies:
     "@placemarkio/tokml" "^0.3.3"
     "@tmcw/togeojson" "^5.6.0"
